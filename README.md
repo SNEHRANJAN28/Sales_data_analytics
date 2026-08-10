@@ -1,131 +1,127 @@
-Enterprise Sales Data Analytics & Revenue Intelligence System
-1. Project Overview & Executive Summary
-The Enterprise Sales Data Analytics & Revenue Intelligence System is an end-to-end data science and business intelligence solution designed to transform raw transactional sales data into actionable strategic insights. In modern e-commerce and retail environments, multi-channel transactional streams generate vast amounts of structured and semi-structured data. Without automated ETL (Extract, Transform, Load) pipelines, robust data modeling, and predictive analytics, organizations face revenue leakage, inefficient inventory allocation, and poor customer retention.
+# Enterprise Sales Data Analytics & Revenue Intelligence System
 
-This project delivers a comprehensive analytics pipeline—ranging from SQL-driven data warehousing and Python-based exploratory data analysis (EDA) to advanced machine learning models (RFM customer segmentation, time-series forecasting) and interactive Power BI executive dashboards. By modeling historical sales transactions across diverse product categories, geographies, and customer segments, this project optimizes pricing strategies, identifies high-value customer cohorts, and forecasts demand to drive revenue growth and operational efficiency.
+An end-to-end data analytics and business intelligence project designed to transform raw transactional sales data into actionable strategic insights. This repository contains data pipelines, exploratory data analysis (EDA), machine learning models for customer segmentation and sales forecasting, and interactive dashboard designs.
 
-2. Problem Statement & Business Objectives
-Modern enterprise sales divisions suffer from fragmented data silos, unoptimized discounting strategies, and reactive decision-making. Key challenges addressed in this project include:
-Unidentified Revenue Leakage: Inability to pinpoint underperforming product categories, regional sales bottlenecks, or margin-eroding discount structures.
-Customer Churn & Low Retention: Lack of visibility into customer purchase behavior, leading to ineffective retention marketing and sub-optimal Customer Lifetime Value (CLV).
-Inventory Misalignment: Stockouts of high-demand items and overstocking of slow-moving inventory due to inaccurate seasonal demand forecasting.
-Static Reporting: Dependence on manual, legacy Excel reports that delay executive decision-making and lack granular drill-down capabilities.
-Strategic Objectives:
-Build a Scalable Data Pipeline: Architect a robust relational data model (Star Schema) using PostgreSQL / MS SQL Server for high-performance querying and aggregation.
-Perform Exploratory Data Analysis (EDA): Identify underlying sales trends, seasonality, correlation matrices, outlier distributions, and purchase drivers using Python (Pandas, NumPy, Seaborn).
-Implement Unsupervised Machine Learning: Perform Customer Lifetime Value (CLV) scoring and RFM (Recency, Frequency, Monetary) segmentation via K-Means Clustering.
-Deploy Time-Series Sales Forecasting: Develop predictive machine learning models (ARIMA, Prophet, XGBoost) to forecast quarterly revenue and demand trends.
-Develop an Interactive BI Dashboard: Engineer dynamic Power BI / Tableau visualization suites showcasing high-level KPIs and multi-dimensional sales filtering.
-3. Data Architecture & ETL Pipeline
-[Raw Transactional Data (CSV/JSON/APIs)]
-                  │
-                  ▼
-   [ETL Pipeline (Python / SQL)] ──► [Data Cleaning & Validation]
-                  │
-                  ▼
- [Data Warehouse / Schema (PostgreSQL)] ──► [Star Schema: Fact & Dimensions]
-                  │
-                  ├───────────────────────────────┐
-                  ▼                               ▼
- [Advanced Analytics & Machine Learning]   [BI Dashboards]
-   (RFM Clustering, Time Series)            (Power BI / DAX)
-Data Extraction & Ingestion
-The pipeline ingests raw transactional records comprising order details, customer demographics, inventory logs, payment gateways, and fulfillment metrics. Data ingestion scripts validate schema compliance, handle missing attributes, and parse timestamp fields into standardized UTC formats.
+---
 
-Data Cleaning & Transformation (Data Wrangling)
-Using Python (Pandas) and SQL staging tables, raw data undergoes rigorous preprocessing:
-Missing Value Imputation: Categorical variables imputed using mode/business logic; missing continuous metrics handled via median imputation or forward-fill methods for time-series consistency.
-Outlier Detection & Treatment: Applied Interquartile Range (IQR) filtering and Z-score thresholding to isolate anomalies in order quantities and discount percentages.
-Data Normalization & Type Casting: Standardized numerical scales, stripped whitespace, converted strings to standardized datetime instances, and removed duplicate transaction records.
-Data Warehousing & Dimensional Modeling
-The transformed data is structured into an optimized Star Schema within a relational database management system (PostgreSQL / MS SQL Server) to ensure high query performance:
-Fact Table (Fact_Sales): Contains grain-level order metrics including Order_ID, Customer_KEY, Product_KEY, Store_KEY, Date_KEY, Sales_Amount, Quantity, Discount, Profit_Margin, and Shipping_Cost.
-Dimension Tables:
-Dim_Customer: Demographic data, geographic attributes, acquisition channel, customer lifetime tier.
-Dim_Product: SKU attributes, category hierarchy, sub-category groupings, unit cost, MSRP.
-Dim_Date: Standard calendar attributes, fiscal quarter, week number, holiday flags, business day indicators.
-Dim_Geography: Regional mapping, postal codes, state, country, territory division.
-4. Exploratory Data Analysis (EDA) & Diagnostic Analytics
-Exploratory Data Analysis was performed using Python (Pandas, Matplotlib, Seaborn) and advanced SQL analytical window functions (OVER, PARTITION BY, DENSE_RANK, LAG/LEAD).
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Business Objectives](#business-objectives)
+- [Repository Structure](#repository-structure)
+- [Data Architecture & Schema](#data-architecture--schema)
+- [Analytics & Machine Learning Workflow](#analytics--machine-learning-workflow)
+- [Interactive BI Dashboard & KPIs](#interactive-bi-dashboard--kpis)
+- [Key Insights & Strategic Recommendations](#key-insights--strategic-recommendations)
+- [Tech Stack](#tech-stack)
+- [Installation & Getting Started](#installation--getting-started)
 
-Python
-# Sample Analysis Pipeline: Monthly Revenue Growth & Moving Averages
-import pandas as pd
-import numpy as np
+---
 
-# Load transaction data
-df = pd.read_csv('sales_data_cleaned.csv', parse_dates=['order_date'])
+## Project Overview
 
-# Aggregate Monthly Metrics
-monthly_sales = df.groupby(df['order_date'].dt.to_period('M')).agg(
-    total_revenue=('sales_amount', 'sum'),
-    total_orders=('order_id', 'nunique'),
-    avg_order_value=('sales_amount', 'mean'),
-    gross_profit=('profit', 'sum')
-).reset_index()
+In multi-channel retail and e-commerce environments, unorganized transactional streams lead to revenue leakage, poor inventory allocation, and missed customer retention opportunities. 
 
-# Calculate Month-over-Month (MoM) Growth & 3-Month Rolling Average
-monthly_sales['mom_growth_%'] = monthly_sales['total_revenue'].pct_change() * 100
-monthly_sales['rolling_3m_avg'] = monthly_sales['total_revenue'].rolling(window=3).mean()
-Key Analytics Focus Areas:
-Univariate & Bivariate Distribution: Evaluated profit margins across product lines and analyzed sales variance across geographic territories.
-Cohort Analysis: Tracked customer acquisition cohorts over time to compute customer retention rates, repeat purchase ratios, and churn velocity.
-Correlation Analysis: Generated heatmaps to identify relationships between promotional discount rates, order volume, return rates, and net profitability.
-Pareto Analysis (80/20 Rule): Segmented products by cumulative revenue contribution, uncovering that top 20% SKUs generate 78% of overall gross sales.
-5. Advanced Machine Learning & Predictive Modeling
-Unsupervised Learning: Customer RFM Segmentation
-To optimize target marketing, customers were segmented based on purchasing behavior using RFM Analysis and K-Means Clustering:
-Recency (R): Days since the customer's last transaction.
-Frequency (F): Total number of completed transactions.
-Monetary (M): Total monetary value expended across all orders.
-Python
+This project establishes an automated analytics pipeline that integrates SQL data warehousing, Python-driven exploratory analysis, machine learning algorithms (RFM clustering and time-series forecasting), and dynamic Power BI reporting to optimize pricing strategies, track cohort retention, and predict demand trends.
+
+---
+
+## Business Objectives
+
+1. **Build a Scalable Data Pipeline:** Construct a normalized relational Star Schema in SQL to query and aggregate millions of sales records efficiently.
+2. **Execute Diagnostic Analysis:** Perform exploratory data analysis using Python (`Pandas`, `Seaborn`) to identify high-margin product lines, sales bottlenecks, and discount erosion.
+3. **Implement Customer Segmentation:** Apply unsupervised K-Means clustering on Recency, Frequency, and Monetary (RFM) metrics to group customers by value.
+4. **Deploy Predictive Revenue Forecasting:** Train time-series machine learning models (`Prophet`, `ARIMA`) to project quarterly sales and streamline inventory planning.
+5. **Develop Executive Dashboards:** Build an interactive Power BI dashboard powered by DAX metrics for real-time performance tracking.
+
+---
+
+## Repository Structure
+
+```text
+├── data/
+│   ├── raw/                 # Original transactional CSVs
+│   └── processed/           # Cleaned datasets ready for analysis
+├── sql/
+│   ├── schema_design.sql    # DDL scripts for Star Schema tables
+│   └── analytical_queries.sql # Window functions, aggregates, and CTEs
+├── notebooks/
+│   ├── 01_data_cleaning.ipynb
+│   ├── 02_exploratory_data_analysis.ipynb
+│   ├── 03_rfm_customer_segmentation.ipynb
+│   └── 04_sales_forecasting.ipynb
+├── dashboards/
+│   └── sales_intelligence.pbix # Power BI dashboard file
+├── assets/                  # Dashboard screenshots and diagrams
+├── requirements.txt         # Required Python packages
+└── README.md                # Project documentation
+
+Data Architecture & Schema
+Raw transactional data is processed through an ETL pipeline and structured into a Star Schema within a relational database (PostgreSQL / MS SQL Server):
++------------------+
+       |   Dim_Customer   |
+       +------------------+
+                |
+                |
++---------------+---------------+
+|           Fact_Sales          | <--- +------------------+
++---------------+---------------+      |   Dim_Product    |
+                |                      +------------------+
+                |
+       +------------------+
+       |     Dim_Date     |
+       +------------------+
+
+Tables Overview:
+Fact_Sales: Central table containing transaction metrics (Order_ID, Sales_Amount, Quantity, Discount, Profit_Margin, Shipping_Cost).
+Dim_Customer: Demographic features, geographical locations, and acquisition details.
+Dim_Product: Product hierarchy, category details, unit cost, and MSRP.
+Dim_Date: Standard calendar attributes, fiscal quarters, holidays, and business days.
+Analytics & Machine Learning Workflow
+1. Data Cleaning & Transformation (Python)
+Applied Interquartile Range (IQR) filtering to remove price and quantity anomalies.
+Standardized datetime structures and imputed missing values using domain logic.
+Conducted Pareto Analysis (80/20 rule) to isolate top-performing SKUs.
+2. RFM Customer Segmentation (K-Means Clustering)
+Customers are evaluated based on:
+Recency (R): Days since last purchase.
+Frequency (F): Total number of transactions.
+Monetary (M): Total monetary spent.
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
-# Preprocessing RFM Features
+# Preprocessing & Scaling
 scaler = StandardScaler()
 rfm_scaled = scaler.fit_transform(rfm_df[['Recency', 'Frequency', 'Monetary']])
 
-# Optimal Cluster Selection via Elbow Method & Silhouette Score
+# Clustering into 4 distinct groups
 kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
 rfm_df['Cluster_ID'] = kmeans.fit_predict(rfm_scaled)
-Cluster Classifications:
-Champions / VIPs: High frequency, high monetary spent, recent transactions.
-Loyal Customers: Consistent purchase frequency, stable transaction history.
-At-Risk / Dormant: High historical monetary spend, but elevated recency (no purchases in 180+ days).
-Low-Value / Churned: Low frequency, minimal spend, prolonged inactivity.
-Time-Series Forecasting & Demand Planning
-Built historical sales forecasting models leveraging Prophet, ARIMA, and XGBoost Regressor models to predict weekly/monthly gross revenue for subsequent quarters. Feature engineering included seasonality indicators, trend decomposition, lagged variables (Lag_7, Lag_30), and rolling statistics.
+Identified Segments:
+VIP / Champions: High frequency, high spend, recent activity.
+Loyal Customers: Consistent purchase history and steady spending.
+At-Risk: High historical spend, but inactive for over 180 days.
+Low-Value / Churned: Low order frequency and low spend.
 
-Python
+3. Revenue Forecasting (Prophet & ARIMA)
+Predictive time-series modeling was implemented to forecast monthly revenue for upcoming quarters using trend decomposition and lag features:
 from prophet import Prophet
 
-# Prepare dataframe for Prophet modeling
+# Fit Prophet Model
 prophet_df = monthly_sales.rename(columns={'order_date': 'ds', 'total_revenue': 'y'})
-prophet_df['ds'] = prophet_df['ds'].dt.to_timestamp()
-
-# Initialize & Fit Model
-model = Prophet(yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False)
+model = Prophet(yearly_seasonality=True, weekly_seasonality=True)
 model.fit(prophet_df)
 
-# Generate 12-Month Future Forecast
+# Forecast Next 12 Months
 future = model.make_future_dataframe(periods=12, freq='M')
 forecast = model.predict(future)
-Evaluation metrics utilized to assess model precision included Root Mean Squared Error (RMSE), Mean Absolute Percentage Error (MAPE), and R 
-2
-  Score.
 
-6. Interactive Business Intelligence Dashboard & Key Performance Indicators (KPIs)
-The final layer translates mathematical models and structured datasets into an interactive executive dashboard designed in Power BI utilizing dynamic DAX (Data Analysis Expressions) measures.
-
-Tracked Business Metrics & KPIs:
-Total Revenue & Gross Profit Margin ($): Real-time aggregate sales vs. profit generated post-discounting.
-Average Order Value (AOV): Total sales volume divided by total order count.
-Customer Acquisition & Lifetime Value (LTV): Long-term monetary return calculated per segment cohort.
-Year-over-Year (YoY) & Month-over-Month (MoM) Revenue Growth (%): Comparative growth analytics across historical timelines.
-Discount Elasticity & Return Rate (%): Quantitative correlation between promotion depth and returned orders.
-Code snippet
-// DAX Measure: Year-over-Year Revenue Growth Calculation
+Interactive BI Dashboard & KPIs
+The executive dashboard tracks core metrics built with dynamic DAX Expressions:
+Total Revenue & Gross Profit Margin ($)
+Average Order Value (AOV)
+Year-over-Year (YoY) Sales Growth (%)
+Customer Lifetime Value (LTV)
+Sample DAX Code:
 YoY_Revenue_Growth = 
 VAR CurrentYearSales = SUM(Fact_Sales[Sales_Amount])
 VAR PriorYearSales = CALCULATE(
@@ -134,18 +130,29 @@ VAR PriorYearSales = CALCULATE(
 )
 RETURN
 DIVIDE(CurrentYearSales - PriorYearSales, PriorYearSales, 0)
-Dashboard Features:
-Dynamic slicers for filtering by Region, Fiscal Quarter, Customer Tier, and Product Category.
-Decomposition tree visualizations for ad-hoc root-cause analysis of profit margin variance.
-Automated alert thresholds highlighting underperforming regions and stock deficiency risks.
-7. Strategic Recommendations & Business Impact
-Based on analytics insights generated by the system, key strategic actions were identified:
-Re-align Promotional Strategy: Eliminate aggressive discounting (>25%) on low-margin SKUs, which was shown to reduce profit margin by 14% without significantly raising total order volume.
-Targeted VIP Retention: Deploy automated marketing workflows targeting "At-Risk" high-value RFM clusters, protecting at-risk revenue stream segments.
-Geographic Expansion: Double down on regional territories displaying high MoM growth trajectories coupled with above-average AOV.
-Optimized Inventory Scheduling: Utilize 90-day time-series forecasts to align procurement schedules with seasonal demand spikes, minimizing stockout incidents.
-8. Technology Stack Summary
-Database & Querying: SQL, PostgreSQL, MS SQL Server (Schema Design, Staging Tables, CTEs, Window Functions)
-Data Science & ML Libraries: Python, Pandas, NumPy, Scikit-learn, Statsmodels, Prophet, XGBoost
-Data Visualization & Exploratory Analysis: Power BI, DAX, Power Query, Matplotlib, Seaborn
-Environment & Tools: Jupyter Notebook, Git, GitHub, VS Code
+
+Key Insights & Strategic Recommendations
+Optimize Discounting: Discounts exceeding 25% eroded gross profit margins by 14% without producing proportional gains in volume.
+Re-engage At-Risk Customers: Automated retention workflows aimed at high-value "At-Risk" segments prevent revenue churn.
+Inventory Alignment: Time-series demand predictions enable proactive supply chain scheduling ahead of peak seasonal periods.
+Tech Stack
+Database & Querying: SQL, PostgreSQL, MS SQL Server
+Languages & Libraries: Python (Pandas, NumPy, Scikit-learn, Prophet, Matplotlib, Seaborn)
+Business Intelligence: Power BI, DAX, Power Query
+Tools: Jupyter Notebook, Git, GitHub, VS Code
+Installation & Getting Started
+Clone the repository:
+git clone [https://github.com/SNEHRANJAN28/Sales_data_analytics.git](https://github.com/SNEHRANJAN28/Sales_data_analytics.git)
+cd Sales_data_analytics
+
+Set up a virtual environment and install dependencies:
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+pip install -r requirements.txt
+
+Database Setup:
+Execute scripts in sql/schema_design.sql within PostgreSQL/MS SQL Server.
+Load clean CSV files into staging tables.
+Run Notebooks:
+Launch Jupyter Notebook to review the EDA, clustering, and forecasting workflows:
+jupyter notebook
